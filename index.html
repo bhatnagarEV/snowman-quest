@@ -1,0 +1,417 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Save the Snowman – Java Loops and String Tracing Quest</title>
+  <style>
+    :root{
+      --bg:#f9fafb; /* light background */
+      --panel:#ffffff; /* white panels */
+      --ink:#111827; /* dark text */
+      --muted:#4b5563; /* gray text */
+      --accent:#2563eb; /* blue accent */
+      --ok:#15803d; /* green */
+      --warn:#b45309; /* amber */
+      --err:#b91c1c; /* red */
+      --codebg:#1e293b; /* dark code background */
+      --codefg:#f9fafb; /* light code text */
+      --answerbg:#fef3c7; /* light yellow */
+      --answerfg:#78350f; /* brownish text */
+    }
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--ink);font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";min-height:100dvh}
+    .wrap{max-width:980px;margin:0 auto;padding:24px}
+    header{display:flex;gap:16px;align-items:center;margin-bottom:16px}
+    header .title{font-size:clamp(20px,3vw,28px);font-weight:800;letter-spacing:.3px}
+    header .subtitle{font-size:14px;color:var(--muted)}
+    .grid{display:grid;grid-template-columns:1.1fr .9fr;gap:20px}
+    .card{background:var(--panel);border-radius:18px;border:1px solid #d1d5db;box-shadow:0 4px 8px rgba(0,0,0,.08)}
+    .card h2{margin:0 0 8px;font-size:18px}
+    .card .pad{padding:18px}
+    .badge{display:inline-flex;align-items:center;gap:8px;background:#f3f4f6;border:1px solid #d1d5db;padding:6px 10px;border-radius:999px;font-size:12px;color:var(--muted)}
+    pre{background:var(--codebg);color:var(--codefg);padding:14px;border-radius:12px;overflow:auto;max-height:360px;white-space:pre-wrap}
+    code{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace}
+    textarea{width:100%;min-height:140px;background:var(--answerbg);color:var(--answerfg);caret-color:var(--answerfg);padding:12px;border:1px solid #d97706;border-radius:12px;resize:vertical;font-weight:500}
+    .row{display:flex;gap:10px;flex-wrap:wrap}
+    .btn{appearance:none;border:1px solid #d1d5db;background:#f9fafb;color:var(--ink);padding:10px 14px;border-radius:12px;cursor:pointer;font-weight:600}
+    .btn:hover{border-color:#9ca3af}
+    .btn.primary{background:var(--accent);color:white;border:none}
+    .btn.ghost{background:transparent}
+    .btn.warn{background:var(--warn);color:white;border:none}
+    .btn.ok{background:var(--ok);color:white;border:none}
+    .status{padding:10px 12px;border-radius:10px;border:1px solid #d1d5db;background:#f3f4f6;font-size:14px}
+    .status.ok{border-color:var(--ok);background:#dcfce7;color:var(--ok)}
+    .status.err{border-color:var(--err);background:#fee2e2;color:var(--err)}
+    .flex{display:flex;align-items:center;gap:10px}
+    .pill{padding:6px 10px;border:1px dashed #9ca3af;border-radius:999px;color:var(--muted);font-size:12px}
+    footer{margin-top:20px;color:var(--muted);font-size:12px}
+    .progress{height:10px;background:#f3f4f6;border:1px solid #d1d5db;border-radius:999px;overflow:hidden}
+    .bar{height:100%;background:linear-gradient(90deg,#38bdf8,#22d3ee)}
+    .snowman{font-size:28px}
+    .mini{font-size:12px;color:var(--muted)}
+    .kbd{font-family: ui-monospace, Menlo, Consolas, monospace;border:1px solid #d1d5db;background:#f3f4f6;color:#111827;border-radius:6px;padding:2px 6px}
+    a{color:#2563eb}
+
+    /* Overlays */
+    .overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;z-index:50}
+    .sheet{background:var(--panel);border:1px solid #d1d5db;border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.15);padding:20px;max-width:520px;width:min(92%,520px)}
+    .sheet h3{margin:0 0 6px 0}
+    .line{display:flex;gap:10px;margin-top:10px}
+    .input{flex:1;border:1px solid #d1d5db;border-radius:12px;padding:10px 12px;font-size:16px}
+    .muted{color:var(--muted);font-size:12px}
+    .hide{display:none}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="snowman">⛄️</div>
+      <div>
+        <div class="title">Save the Snowman – Java Loops and String Tracing Quest</div>
+        <div class="subtitle">Problems are shuffled each run. Your <em>answer</em> reveals where to go next. Reach the end before the snowman melts!</div>
+      </div>
+      <div style="margin-left:auto" class="flex">
+        <span class="pill" id="player">👤 —</span>
+        <span class="pill" id="timer">⏱ 60s</span>
+        <span class="pill" id="lives">⛄️⛄️⛄️</span>
+        <span class="pill" id="progressPill">0 / 12</span>
+      </div>
+    </header>
+
+    <div class="grid">
+      <section class="card" id="problemCard">
+        <div class="pad">
+          <div class="badge">Problem <span id="pnum">1</span></div>
+          <h2 id="ptitle">For each problem use: <code>String word = "snowman";</code></h2>
+          <pre><code id="code"></code></pre>
+          <div class="mini">Type the exact output or answer. Type Error if there is any error. New lines are okay.</div>
+          <textarea id="answer" placeholder="Type your answer here…"></textarea>
+          <div class="row" style="margin-top:10px">
+            <button class="btn primary" id="submit">Check Answer → Next</button>
+            <button class="btn" id="hint">Hint</button>
+            <button class="btn ghost" id="reveal" title="Teacher quick-check (press H twice)">Reveal</button>
+            <button class="btn ghost" id="reset">Reset Game</button>
+          </div>
+          <div id="status" class="status" style="margin-top:12px;display:none"></div>
+        </div>
+      </section>
+
+      <aside class="card">
+        <div class="pad">
+          <h2>Quest Log</h2>
+          <div class="progress" aria-label="progress"><div id="bar" class="bar" style="width:0%"></div></div>
+          <ol id="log" class="mini"></ol>
+          <hr style="border-color:#d1d5db" />
+          <p class="mini"><strong>Rules</strong>:<br>
+            • Questions are shuffled each run.<br>
+            • Don’t use a compiler. Your answer must match the expected output.<br>
+            • Wrong answers or reveals cost a life (⛄️).<br>
+            • Timer: 60s per question. A timeout costs one life and advances to the next problem.<br>
+            • Three lost lives = the snowman melts.
+          </p>
+          <p class="mini">Pro-tip: Use <span class="kbd">Shift</span>+<span class="kbd">Enter</span> for newlines in the answer box. Whitespace is forgiving.</p>
+        </div>
+      </aside>
+    </div>
+
+    <footer>
+      <p>Built for GitHub Pages. Save this file as <span class="kbd">index.html</span> in a repo and enable Pages (Settings → Pages → Source: <em>main</em> / <em>root</em>).</p>
+    </footer>
+  </div>
+
+  <!-- Start Overlay -->
+  <div id="startOverlay" class="overlay">
+    <div class="sheet">
+      <h3>Enter Your Name</h3>
+      <p class="muted">Your name will be locked once you start.</p>
+      <div class="line">
+        <input id="nameInput" class="input" placeholder="e.g., Arjun Patel" maxlength="60" />
+        <button id="startBtn" class="btn primary">Start</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- End Overlay -->
+  <div id="endOverlay" class="overlay hide">
+    <div class="sheet">
+      <h3 id="finalTitle">Great job!</h3>
+      <p class="muted" id="finalSubtitle"></p>
+      <ul class="mini" style="line-height:1.8">
+        <li id="statCorrect"></li>
+        <li id="statWrong"></li>
+        <li id="statReveals"></li>
+        <li id="statTimeouts"></li>
+        <li id="statTime"></li>
+        <li id="statScore" style="font-weight:700"></li>
+      </ul>
+      <div class="row" style="margin-top:8px">
+        <button id="playAgain" class="btn ok">Play Again</button>
+        <button id="closeEnd" class="btn">Close</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+// ===== Helpers =====
+function normalize(text){
+  if(!text) return "";
+  return text
+    .replace(/\r\n?/g,"\n")
+    .split("\n")
+    .map(line => line.replace(/\s+/g,' ').trim())
+    .filter(line => line.length>0)
+    .join("\n");
+}
+function shuffle(arr){ for(let i=arr.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [arr[i],arr[j]]=[arr[j],arr[i]]; } return arr; }
+
+// ===== Full 12-problem set =====
+const problems = [
+  {code:`for (int i = 0;i<word.length();i++){\n  System.out.println(word);\n}`, expected:`snowman\nsnowman\nsnowman\nsnowman\nsnowman\nsnowman\nsnowman`},
+  {code:`for (int i = 0;i<word.length();i++){\n  System.out.println(word.substring(i));\n}`, expected:`snowman\nnowman\nowman\nwman\nman\nan\nn`},
+  {code:`for (int i = 0;i<word.length();i++){\n  System.out.println(word.substring(0,i)+word.substring(i+1));\n}`, expected:`nowman\nsowman\nsnwman\nsnoman\nsnowan\nsnowmn\nsnowma`},
+  {code:`for (int i = 0;i<word.length();i++){\n  System.out.println(word.substring(i,i+1));\n}`, expected:`s\nn\no\nw\nm\na\nn`},
+  {code:`for (int i = 0;i<word.length();i++){ System.out.print(word.substring(i,i+1)+ " "); }`, expected:`s n o w m a n`},
+  {code:`for (int i = 0;i<word.length();i++){ \n  word = word.substring(0,i)+word.substring(i+1);\n}\nSystem.out.println(word);`, expected:`nwa`},
+  {code:`for (int i = 0;i<word.length();i()){ \n  int j = word.indexOf("n");\n  word = word.substring(0,j)+word.substring(j+1);\n}\nSystem.out.println(word);`, expected:`Error (index out of bounds)`, isError:true},
+  {code:`for (int i = 0;i<word.length();i()){ \n  int j = word.indexOf("n");\n  if (j>0)\n    word= word.substring(0,j)+word.substring(j+1);\n}\nSystem.out.println(word);`, expected:`sowma`},
+  {code:`int i =0; \nwhile(i<word.length()-1){\n  String let = word.substring(i,i+1);\n  if (let.equals("m"))\n    i+=2; \n  if (let.equals("n"))\n    i+=3;\n  i++;\n  System.out.println(i);\n}\n// How many times does the loop run?`, expected:`3`},
+  {code:`String newword= word+" is melting!";\nint i =word.length(); \nwhile(i>0){\n  System.out.println(newword.substring(i, i+3));\n  i-=2;\n}`, expected:`is\nan\nwma\nnow`},
+  {code:`String newword= word+" is melting!";\nint i = 0; \nwhile(i<newword.length()){\n  if(newword.substring(i,i+1).equals("n")){\n    newword= newword.substring(i,i+1)+"SNOW"+newword.substring(i+1);\n    i-=1;\n  }\n  i+=3;\n}\nSystem.out.println(newword);`, expected:`nSNOWg!`},
+  {code:`int i = word.length(); \nwhile(i>0){  \n  System.out.println(word.substring(i-1,i));\n  i--;\n}`, expected:`n\na\nm\nw\no\nn\ns`},
+];
+
+// Build shuffled map
+let order = [];
+let P = {};
+function buildProblemMap(){
+  order = shuffle([...problems]);
+  P = {};
+  order.forEach((p,idx)=>{ P[idx+1] = {...p, id: idx+1, next: (idx+2<=order.length? idx+2 : 1)}; });
+}
+
+function isMatch(id,user){
+  const u = normalize(user);
+  const e = normalize(P[id].expected);
+  if(P[id].isError){
+    // Accept just "Error" as correct (case-insensitive)
+    return /error/i.test(u);
+  }
+  return u === e;
+}
+
+// ===== State =====
+const QUESTION_SECONDS = 60;
+let state = { id:1, lives:3, visited:new Set(), remaining:QUESTION_SECONDS, timerId:null, name:null, startAt:null, endAt:null, correct:0, wrong:0, reveals:0, timeouts:0 };
+
+// ===== DOM refs =====
+let pnum, codeBox, ans, submit, hint, reveal, reset, status, log, lives, progressPill, bar, timerEl, playerPill;
+let startOverlay, nameInput, startBtn, endOverlay, finalTitle, finalSubtitle, statCorrect, statWrong, statReveals, statTimeouts, statTime, statScore, playAgain, closeEnd;
+
+// ===== Timer =====
+function startTimer(){
+  stopTimer();
+  state.remaining = QUESTION_SECONDS;
+  timerEl.textContent = `⏱ ${state.remaining}s`;
+  state.timerId = setInterval(()=>{
+    state.remaining -= 1;
+    timerEl.textContent = `⏱ ${state.remaining}s`;
+    if(state.remaining <= 0){
+      stopTimer();
+      timeoutLoseLife();
+    }
+  },1000);
+}
+function stopTimer(){ if(state.timerId){ clearInterval(state.timerId); state.timerId=null; } }
+
+function timeoutLoseLife(){
+  status.style.display='block';
+  status.className='status err';
+  status.innerHTML='⏱ Time up! -1 life';
+  state.lives -= 1; state.timeouts += 1;
+  lives.textContent = '⛄️'.repeat(Math.max(0,state.lives));
+  logLine(`Problem ${state.id} ⏱ Timeout`);
+  if(state.lives <= 0){ end('lose'); return; }
+  const cur=P[state.id];
+  state.visited.add(cur.id);
+  if(cur.id === Object.keys(P).length){ end('win'); return; }
+  state.id = cur.next;
+  render();
+}
+
+// ===== Render =====
+function render(){
+  try{
+    if(!P[1]) buildProblemMap();
+    const cur=P[state.id];
+    if(!cur){
+      status.style.display='block';
+      status.className='status err';
+      status.textContent='⚠️ Could not load problem. Rebuilding…';
+      buildProblemMap();
+    }
+    const c=P[state.id];
+    pnum.textContent=c.id;
+    codeBox.textContent=`String word = "snowman";\n\n${c.code}`;
+    ans.value='';
+    status.style.display='none';
+    progressPill.textContent=`${state.visited.size} / ${Object.keys(P).length}`;
+    bar.style.width=`${(state.visited.size/Object.keys(P).length)*100}%`;
+    lives.textContent='⛄️'.repeat(state.lives);
+    startTimer();
+  }catch(err){
+    console.error(err);
+    status.style.display='block';
+    status.className='status err';
+    status.textContent='Unexpected error: '+err.message;
+  }
+}
+
+function logLine(text){ const li=document.createElement('li'); li.textContent=text; log.appendChild(li); }
+
+function computeScore(){
+  // Simple scoring: 10 points per correct, 5 per remaining life, -1 per reveal, -1 per timeout (min 0)
+  const base = state.correct * 10 + state.lives * 5 - state.reveals - state.timeouts;
+  return Math.max(0, base);
+}
+
+function showEndScreen(reason){
+  const total = Object.keys(P).length;
+  const elapsed = state.startAt && state.endAt ? Math.round((state.endAt - state.startAt)/1000) : 0;
+  finalTitle.textContent = reason==='win' ? `Victory, ${state.name}!` : `Game Over, ${state.name}`;
+  finalSubtitle.textContent = `You finished the Snowman Quest${reason==='win'?'!':'.'}`;
+  statCorrect.textContent = `✔️ Correct: ${state.correct} / ${total}`;
+  statWrong.textContent = `❌ Wrong: ${state.wrong}`;
+  statReveals.textContent = `👀 Reveals used: ${state.reveals}`;
+  statTimeouts.textContent = `⏱ Timeouts: ${state.timeouts}`;
+  statTime.textContent = `🕒 Time: ${elapsed}s`;
+  statScore.textContent = `🏆 Final Score: ${computeScore()}`;
+  endOverlay.classList.remove('hide');
+}
+
+function end(reason){
+  stopTimer();
+  status.style.display='block';
+  status.className='status '+(reason==='win'?'ok':'err');
+  status.innerHTML = reason==='win' ? '🎉 Victory! You saved the snowman!' : '💥 The snowman melted.';
+  submit.disabled=true; hint.disabled=true; reveal.disabled=true;
+  state.endAt = Date.now();
+  showEndScreen(reason);
+}
+
+// ===== Events =====
+function wireEvents(){
+  submit.addEventListener('click',()=>{
+    const cur=P[state.id];
+    const correct=isMatch(cur.id, ans.value);
+    status.style.display='block';
+    if(correct){
+      status.className='status ok';
+      status.innerHTML='✅ Correct!';
+      state.correct += 1;
+      state.visited.add(cur.id);
+      logLine(`Problem ${cur.id} ✓`);
+      if(cur.id===Object.keys(P).length){ end('win'); return; }
+      state.id=cur.next;
+      render();
+    } else {
+      status.className='status err';
+      status.innerHTML='❌ Not quite.';
+      state.lives-=1; state.wrong += 1;
+      lives.textContent='⛄️'.repeat(Math.max(0,state.lives));
+      logLine(`Problem ${cur.id} ✗`);
+      if(state.lives<=0){ end('lose'); return; }
+    }
+  });
+
+  hint.addEventListener('click',()=>{
+    status.style.display='block';
+    status.className='status';
+    status.textContent='Hint: Trace carefully and watch indices.';
+  });
+
+  reveal.addEventListener('click',()=>{
+    const cur=P[state.id];
+    const revealText=cur.isError?'Error (index out of bounds)':cur.expected;
+    ans.value=revealText;
+    status.style.display='block';
+    status.className='status warn';
+    status.innerHTML='⚠️ Revealed expected answer. (Cost: -1 life)';
+    state.lives-=1; state.reveals += 1;
+    lives.textContent='⛄️'.repeat(Math.max(0,state.lives));
+    logLine(`Problem ${cur.id} Reveal`);
+    if(state.lives<=0){ end('lose'); }
+  });
+
+  reset.addEventListener('click',()=>{
+    if(state.name){ // lock name; reset everything else
+      state={...state, id:1, lives:3, visited:new Set(), remaining:QUESTION_SECONDS, timerId:null, startAt:Date.now(), endAt:null, correct:0, wrong:0, reveals:0, timeouts:0};
+      log.innerHTML='';
+      submit.disabled=false; hint.disabled=false; reveal.disabled=false;
+      buildProblemMap();
+      endOverlay.classList.add('hide');
+      render();
+    } else {
+      // if no name yet, show start overlay
+      startOverlay.classList.remove('hide');
+    }
+  });
+
+  // Start overlay
+  startBtn.addEventListener('click',()=>{
+    const v = nameInput.value.trim();
+    if(!v){ nameInput.focus(); return; }
+    state.name = v;
+    playerPill.textContent = `👤 ${state.name}`;
+    nameInput.disabled = true; startBtn.disabled = true;
+    startOverlay.classList.add('hide');
+    // init game
+    state.startAt = Date.now();
+    buildProblemMap();
+    render();
+  });
+
+  // Final overlay buttons
+  playAgain.addEventListener('click',()=>{ reset.click(); });
+  closeEnd.addEventListener('click',()=>{ endOverlay.classList.add('hide'); });
+}
+
+// ===== Init after DOM ready =====
+document.addEventListener('DOMContentLoaded',()=>{
+  pnum=document.getElementById('pnum');
+  codeBox=document.getElementById('code');
+  ans=document.getElementById('answer');
+  submit=document.getElementById('submit');
+  hint=document.getElementById('hint');
+  reveal=document.getElementById('reveal');
+  reset=document.getElementById('reset');
+  status=document.getElementById('status');
+  log=document.getElementById('log');
+  lives=document.getElementById('lives');
+  progressPill=document.getElementById('progressPill');
+  bar=document.getElementById('bar');
+  timerEl=document.getElementById('timer');
+  playerPill=document.getElementById('player');
+
+  startOverlay=document.getElementById('startOverlay');
+  nameInput=document.getElementById('nameInput');
+  startBtn=document.getElementById('startBtn');
+
+  endOverlay=document.getElementById('endOverlay');
+  finalTitle=document.getElementById('finalTitle');
+  finalSubtitle=document.getElementById('finalSubtitle');
+  statCorrect=document.getElementById('statCorrect');
+  statWrong=document.getElementById('statWrong');
+  statReveals=document.getElementById('statReveals');
+  statTimeouts=document.getElementById('statTimeouts');
+  statTime=document.getElementById('statTime');
+  statScore=document.getElementById('statScore');
+  playAgain=document.getElementById('playAgain');
+  closeEnd=document.getElementById('closeEnd');
+
+  wireEvents();
+  // Do NOT render problems until name is entered
+});
+</script>
+</body>
+</html>
